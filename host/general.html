@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f1117;
+            color: #e0e0e0;
+            font-family: monospace;
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        h2 {
+            color: #a78bfa;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .card {
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .card.full {
+            grid-column: 1 / -1;
+        }
+
+        /* ── STAT ROW ── */
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            border-bottom: 1px solid #1e1e3a;
+            font-size: 0.82rem;
+        }
+
+        .stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat .label {
+            color: #888;
+        }
+
+        .stat .value {
+            color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        .stat .value.accent {
+            color: #a78bfa;
+        }
+
+        .stat .value.green {
+            color: #34d399;
+        }
+
+        .stat .value.yellow {
+            color: #fcd34d;
+        }
+
+        .stat .value.red {
+            color: #f87171;
+        }
+
+        /* ── PROGRESS BAR ── */
+        .bar-wrap {
+            margin-top: 10px;
+        }
+
+        .bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .bar {
+            background: #2a2a4a;
+            border-radius: 4px;
+            height: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .bar-fill.purple {
+            background: #a78bfa;
+        }
+
+        .bar-fill.green {
+            background: #34d399;
+        }
+
+        .bar-fill.yellow {
+            background: #fcd34d;
+        }
+
+        .bar-fill.red {
+            background: #f87171;
+        }
+
+        /* ── CPU CORES ── */
+        .cpu-model {
+            font-size: 0.8rem;
+            color: #a78bfa;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ── GENERAL ── */
+        .general-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .gen-item {
+            background: #12121f;
+            border-radius: 6px;
+            padding: 8px 10px;
+        }
+
+        .gen-item .glabel {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
+
+        .gen-item .gvalue {
+            font-size: 0.85rem;
+            color: #e0e0e0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="grid">
+
+    <!-- CPU -->
+    <div class="card">
+        <h2>CPU</h2>
+        <div class="cpu-model" id="cpu-model">—</div>
+        <div class="stat">
+            <span class="label">Vendor</span>
+            <span class="value accent" id="cpu-vendor">—</span>
+        </div>
+        <div class="stat">
+            <span class="label">Family</span>
+            <span class="value" id="cpu-family">—</span>
+        </div>
+        <div class="stat">
+            <span class="label">Cores</span>
+            <span class="value green" id="cpu-cores">—</span>
+        </div>
+        <div class="bar-wrap">
+            <div class="bar-label">
+                <span>Usage</span>
+                <span id="cpu-pct">—%</span>
+            </div>
+            <div class="bar">
+                <div class="bar-fill purple" id="cpu-bar" style="width:0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MEMORY -->
+    <div class="card">
+        <h2>Memory</h2>
+        <div class="stat">
+            <span class="label">Total</span>
+            <span class="value" id="mem-total">—</span>
+        </div>
+        <div class="stat">
+            <span class="label">Used</span>
+            <span class="value yellow" id="mem-used">—</span>
+        </div>
+        <div class="stat">
+            <span class="label">Available</span>
+            <span class="value green" id="mem-available">—</span>
+        </div>
+        <div class="bar-wrap">
+            <div class="bar-label">
+                <span>Usage</span>
+                <span id="mem-pct">—%</span>
+            </div>
+            <div class="bar">
+                <div class="bar-fill yellow" id="mem-bar" style="width:0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DISK -->
+    <div class="card">
+        <h2>Disk /</h2>
+        <div class="stat">
+            <span class="label">Total</span>
+            <span class="value" id="disk-total">—</span>
+        </div>
+        <div class="stat">
+            <span class="label">Used</span>
+            <span class="value red" id="disk-used">—</span>
+        </div>
+        <div class="stat">
+            <span class="label">Free</span>
+            <span class="value green" id="disk-free">—</span>
+        </div>
+        <div class="bar-wrap">
+            <div class="bar-label">
+                <span>Usage</span>
+                <span id="disk-pct">—%</span>
+            </div>
+            <div class="bar">
+                <div class="bar-fill red" id="disk-bar" style="width:0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GENERAL -->
+    <div class="card">
+        <h2>System</h2>
+        <div id="general-content" class="general-grid">
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function gb(bytes) {
+        return (bytes / 1024 / 1024 / 1024).toFixed(1) + ' GB'
+    }
+
+    function barColor(pct) {
+        if (pct < 60) return 'green'
+        if (pct < 80) return 'yellow'
+        return 'red'
+    }
+
+    function setBar(barId, pctId, pct) {
+        const bar = document.getElementById(barId)
+        const label = document.getElementById(pctId)
+        const color = barColor(pct)
+        bar.style.width = pct + '%'
+        bar.className = 'bar-fill ' + color
+        label.textContent = pct.toFixed(1) + '%'
+        label.className = 'value ' + color
+    }
+
+    function updateHost(data) {
+        // CPU
+        if (data.CPU && data.CPU.length > 0) {
+            const c = data.CPU[0]
+            document.getElementById('cpu-model').textContent = c.ModelName || '—'
+            document.getElementById('cpu-vendor').textContent = c.Vendor || '—'
+            document.getElementById('cpu-family').textContent = c.Family || '—'
+            document.getElementById('cpu-cores').textContent = data.CPU.length + ' cores'
+        }
+
+        if (data.CPUPercent !== undefined) {
+            setBar('cpu-bar', 'cpu-pct', data.CPUPercent)
+        }
+
+        // Memory
+        const m = data.Memory
+        if (m) {
+            const usedPct = (m.Used / m.Total * 100)
+            document.getElementById('mem-total').textContent = gb(m.Total)
+            document.getElementById('mem-used').textContent = gb(m.Used)
+            document.getElementById('mem-available').textContent = gb(m.Available)
+            setBar('mem-bar', 'mem-pct', usedPct)
+        }
+
+        // Disk
+        const d = data.Disk
+        if (d) {
+            const usedPct = d.Percent
+            document.getElementById('disk-total').textContent = gb(d.Total)
+            document.getElementById('disk-used').textContent = gb(d.Used)
+            document.getElementById('disk-free').textContent = gb(d.Free)
+            setBar('disk-bar', 'disk-pct', usedPct)
+        }
+
+        // General
+        const g = data.General
+        if (g) {
+            const items = [
+                {label: 'Hostname', value: g.Hostname},
+                {label: 'OS', value: g.OS},
+                {label: 'Uptime', value: formatUptime(g.Uptime)},
+                {label: 'Platform', value: g.Platform},
+                {label: 'Procs', value: g.Procs + ' procs'},
+                {label: 'Kernel', value: g.KernelVersion},
+            ]
+            document.getElementById('general-content').innerHTML = items.map(i => `
+        <div class="gen-item">
+            <div class="glabel">${i.label}</div>
+            <div class="gvalue">${i.value || '—'}</div>
+        </div>
+    `).join('')
+        }
+    }
+
+    function formatUptime(seconds) {
+        const d = Math.floor(seconds / 86400)
+        const h = Math.floor((seconds % 86400) / 3600)
+        const m = Math.floor((seconds % 3600) / 60)
+        if (d > 0) return d + 'd ' + h + 'h'
+        if (h > 0) return h + 'h ' + m + 'm'
+        return m + 'm'
+    }
+</script>
+</body>
+</html>
