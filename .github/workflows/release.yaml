@@ -34,10 +34,15 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: sudo apt-get install -y ${{ matrix.apt }}
 
+      - name: Install macOS deps
+        if: matrix.goos == 'darwin'
+        run: xcode-select --install || true
+
       - name: Build
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
         run: |
           go build -o rend-${{ matrix.goos }}-${{ matrix.goarch }} .
 
