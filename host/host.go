@@ -12,7 +12,7 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 )
 
-//go:embed general.html
+//go:embed host.html
 var InfoHtml string
 
 type Information struct {

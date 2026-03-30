@@ -67,19 +67,26 @@ func runClock(wv webview.WebView) {
 
 func runHostInfo(wv webview.WebView) {
 	wv.SetTitle("host information")
-	wv.SetSize(850, 500, webview.HintFixed)
+	wv.SetSize(900, 500, webview.HintFixed)
 	wv.SetHtml(host.InfoHtml)
 
-	ticker := time.NewTicker(time.Second)
+	ticker := time.NewTicker(time.Minute)
 	go func() {
+		time.Sleep(500 * time.Millisecond)
+
+		info, _ := host.NewInformation()
+		data, _ := json.Marshal(info)
+		wv.Dispatch(func() {
+			wv.Eval(fmt.Sprintf("updateHost(%s)", string(data)))
+		})
+
 		defer ticker.Stop()
 		for range ticker.C {
-			info, _ := host.NewInformation()
-			data, _ := json.Marshal(info)
+			info, _ = host.NewInformation()
+			data, _ = json.Marshal(info)
 			wv.Dispatch(func() {
 				wv.Eval(fmt.Sprintf("updateHost(%s)", data))
 			})
 		}
 	}()
-
 }
