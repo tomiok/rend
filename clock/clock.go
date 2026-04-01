@@ -11,7 +11,7 @@ var TodayHtml string
 type Today struct {
 	Weekday time.Weekday
 	Day     int
-	Month   int
+	Month   string
 	Year    int
 	Hour    int
 	Minute  int
@@ -29,10 +29,41 @@ func Clock() Today {
 	return Today{
 		Weekday: weekday,
 		Day:     day,
-		Month:   int(month),
+		Month:   translateMonth(month),
 		Year:    year,
 		Hour:    h,
 		Minute:  m,
 		Second:  s,
+	}
+}
+
+func translateMonth(i time.Month) string {
+	switch i {
+	case 1:
+		return "January"
+	case 2:
+		return "February"
+	case 3:
+		return "March"
+	case 4:
+		return "April"
+	case 5:
+		return "May"
+	case 6:
+		return "June"
+	case 7:
+		return "July"
+	case 8:
+		return "August"
+	case 9:
+		return "September"
+	case 10:
+		return "October"
+	case 11:
+		return "November"
+	case 12:
+		return "December"
+	default:
+		return "Unknown"
 	}
 }
